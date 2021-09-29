@@ -23,6 +23,6 @@ class LrClassificationPipeline(BasePipeline):
 
     def get_data(self):
         logger.info(f"从数据源【 {self.datasource} 】获取数据。")
-        data = load_iris()
+        data = load_iris(as_frame=True)
         print(data.target[[10, 25, 50]])
         return data

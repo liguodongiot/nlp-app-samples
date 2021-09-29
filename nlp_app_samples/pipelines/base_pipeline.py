@@ -1,15 +1,21 @@
 
 from nlp_app_samples.logger import get_logger
+from nlp_app_samples.default_args import default_model_parameter
 
 logger = get_logger(logger_name = __file__, logging_level = 3)
 
 class BasePipeline:
-    """基础训练任务类"""
+    """
+    基础训练任务类
+    """
 
     def __init__(self, task_name:str, **kwargs):
         self.task_name = task_name
         self.datasource = kwargs.pop('datasource', '')
-        
+        self.model_ouput_path = kwargs.pop('model_ouput_path', './')
+        self.hyperparameter = default_model_parameter(model_ouput_path = self.model_ouput_path)
+
+
     def get_data(self):
         pass
 

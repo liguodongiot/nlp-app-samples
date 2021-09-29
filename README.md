@@ -1,6 +1,15 @@
 # nlp-app-samples
 机器学习训练脚手架
 
+## 依赖库
+
+| 库 | 版本 |
+| - | - |
+| PyTorch | 1.9.1 |
+| Transformers | 4.11.0|
+| scikit-learn | 1.0|
+
+
 
 
 ## 创建项目及初始化
@@ -68,7 +77,9 @@ git config --global init.defaultBranch main
 > sudo poetry add torch==1.9.1
 > sudo poetry add transformers==4.11.0
 > sudo -H pip install scikit-learn==1.0
-> 
+> sudo poetry add pandas
+
+
 ### 查看依赖
 
 > poetry show --tree
