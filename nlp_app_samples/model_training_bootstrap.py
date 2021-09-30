@@ -9,12 +9,6 @@ args = {'datasource': 'sklearn.datasets.data',
 
 lr = LrClassificationPipeline(task_name='lr_classification', **args)
 
-result = lr.get_data()
-
-df = result['data'].join(result['target'])
-
-logger.info(df.sample(5))
-
 
 lr.run()
 

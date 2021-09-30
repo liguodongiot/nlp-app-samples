@@ -1,6 +1,9 @@
 # nlp-app-samples
 机器学习训练脚手架
 
+
+
+
 ## 依赖库
 
 | 库 | 版本 |
@@ -83,3 +86,11 @@ git config --global init.defaultBranch main
 ### 查看依赖
 
 > poetry show --tree
+
+
+
+
+## 参考文档
+
+- [dataclasses-json](https://pypi.org/project/dataclasses-json/)
+
