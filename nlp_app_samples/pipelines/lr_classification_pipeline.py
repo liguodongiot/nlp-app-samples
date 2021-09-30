@@ -7,6 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 import joblib
+import json
 
 logger = get_logger(__file__)
 
@@ -59,10 +60,10 @@ class LrClassificationPipeline(BasePipeline):
         valid_metrics = []
                 
         # 序列化时对中文默认使用的ascii编码，因此转换时需要ensure_ascii = True
-        valid_metrics.append(MetricParameter(key = '准确率', value = round(valid_accuracy, 3), description = '准确率，值越高表示效果越好').to_json(ensure_ascii = False))
-        valid_metrics.append(MetricParameter(key = '精确率', value = round(valid_precision, 3), description = '精确率，值越高表示效果越好').to_json(ensure_ascii = False))
-        valid_metrics.append(MetricParameter(key = '召回率', value = round(valid_recall, 3), description = '召回率，值越高表示效果越好').to_json(ensure_ascii = False))
-        valid_metrics.append(MetricParameter(key = 'F1值', value = round(valid_f1, 3), description = 'F1值，值越高表示效果越好').to_json(ensure_ascii = False))
+        valid_metrics.append(MetricParameter(key = '准确率', value = round(valid_accuracy, 3), description = '准确率，值越高表示效果越好').to_dict())
+        valid_metrics.append(MetricParameter(key = '精确率', value = round(valid_precision, 3), description = '精确率，值越高表示效果越好').to_dict())
+        valid_metrics.append(MetricParameter(key = '召回率', value = round(valid_recall, 3), description = '召回率，值越高表示效果越好').to_dict())
+        valid_metrics.append(MetricParameter(key = 'F1值', value = round(valid_f1, 3), description = 'F1值，值越高表示效果越好').to_dict())
         eval_result['valid_metrics'] = valid_metrics
 
         test_accuracy, test_precision, test_recall, test_f1 = accuracy_score(y_test_true, y_test_predict),\
@@ -71,16 +72,18 @@ class LrClassificationPipeline(BasePipeline):
                 f1_score(y_test_true, y_test_predict, average='micro')
 
         test_metrics = [] 
-        test_metrics.append(MetricParameter(key = '准确率', value = round(test_accuracy, 3), description = '准确率，值越高表示效果越好').to_json(ensure_ascii = False))
-        test_metrics.append(MetricParameter(key = '精确率', value = round(test_precision, 3), description = '精确率，值越高表示效果越好').to_json(ensure_ascii = False))
-        test_metrics.append(MetricParameter(key = '召回率', value = round(test_recall, 3), description = '召回率，值越高表示效果越好').to_json(ensure_ascii = False))
-        test_metrics.append(MetricParameter(key = 'F1值', value = round(test_f1, 3), description = 'F1值，值越高表示效果越好').to_json(ensure_ascii = False))
+        test_metrics.append(MetricParameter(key = '准确率', value = round(test_accuracy, 3), description = '准确率，值越高表示效果越好').to_dict())
+        test_metrics.append(MetricParameter(key = '精确率', value = round(test_precision, 3), description = '精确率，值越高表示效果越好').to_dict())
+        test_metrics.append(MetricParameter(key = '召回率', value = round(test_recall, 3), description = '召回率，值越高表示效果越好').to_dict())
+        test_metrics.append(MetricParameter(key = 'F1值', value = round(test_f1, 3), description = 'F1值，值越高表示效果越好').to_dict())
 
         eval_result['test_metrics'] = test_metrics
 
-        return eval_result
+        return json.dumps(eval_result, ensure_ascii = False)
 
     
     def postprocesser(self, eval_result):
         logger.info(f"评估指标结果：{eval_result}")
         joblib.dump(self.model, join(self.model_ouput_path, "lr_classification.joblib"))
+
+
