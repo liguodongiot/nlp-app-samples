@@ -82,6 +82,7 @@ sudo poetry add torch==1.9.1
 sudo poetry add transformers==4.11.0
 sudo -H pip install scikit-learn==1.0
 sudo poetry add pandas
+
 ```
 
 ### 查看依赖

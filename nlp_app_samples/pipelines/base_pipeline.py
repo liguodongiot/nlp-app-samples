@@ -35,10 +35,10 @@ class BasePipeline:
         raise NotImplementedError("训练任务没有实现前置处理方法（preprocesser）")
 
     def model_trainer(self, pre_process_result):
-            """
-            模型训练
-            """
-            raise NotImplementedError("训练任务没有实现前置处理方法（preprocesser）")
+        """
+        模型训练
+        """
+        raise NotImplementedError("训练任务没有实现前置处理方法（preprocesser）")
 
     def postprocesser(self, eval_result):
         """
@@ -56,9 +56,9 @@ class BasePipeline:
         self.get_data()
         self.split_dataset()
         pre_process_result = self.preprocesser()
-        logger.info("模型前置处理开始。")
+        logger.info(f"任务名为【{self.task_name}】的模型前置处理开始。")
         self.model_trainer(pre_process_result)
         eval_result = self.model_evaluator()
-        logger.info("模型后置处理开始。")
+        logger.info(f"任务名为【{self.task_name}】的模型后置处理开始。")
         self.postprocesser(eval_result)
         logger.info(f"任务名为【{self.task_name}】的模型训练任务结束。")
