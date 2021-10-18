@@ -78,18 +78,20 @@ git config --global init.defaultBranch main
 
 ```bash
 sudo poetry install
-sudo poetry add torch==1.9.1
+sudo poetry add torch==1.9.0
+sudo poetry add torchvision==0.10.0
 sudo poetry add transformers==4.11.0
 sudo -H pip install scikit-learn==1.0
 sudo poetry add pandas
-
 ```
 
 ### 查看依赖
 
 > poetry show --tree
 
+## 使用pip导出依赖
 
+> pip list --format=freeze | grep -vE '(distribute|pip|setuptools|wheel)' > requirements.txt
 
 
 ## 参考文档
