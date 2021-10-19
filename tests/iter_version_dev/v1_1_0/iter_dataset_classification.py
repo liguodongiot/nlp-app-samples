@@ -334,7 +334,7 @@ class Trainer:
             
         data_loader = DataLoader(
             self.train_dataset,
-            batch_size=8,
+            batch_size=6,
             sampler=train_sampler,
             collate_fn=self.data_collator,
             drop_last=False,
@@ -363,6 +363,10 @@ class Trainer:
         for epoch in train_iterator:
             epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=not self.is_local_master())
             for step, inputs in enumerate(epoch_iterator):
+                print(f"step: {step}, inputs type: {type(inputs)}, "
+                    f"inputs.labels :{inputs['labels']}," 
+                    # f"inputs.input_ids :{inputs['input_ids']}"
+                    )
                 print("---------------------")
 
     def num_examples(self, dataloader: DataLoader) -> int:
