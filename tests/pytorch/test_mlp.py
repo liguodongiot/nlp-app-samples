@@ -6,6 +6,7 @@ import torchvision.transforms as transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 import torch.nn as nn
 import torch.nn.functional as F
+from tqdm.auto import tqdm, trange
 
 
 # 加载数据集

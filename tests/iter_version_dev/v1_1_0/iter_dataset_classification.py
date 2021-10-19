@@ -1,5 +1,8 @@
 
 from torch.utils.data.dataset import Dataset
+from torch.utils.data import DataLoader
+from torch.utils.data import sampler
+
 from typing import List, Optional, Union, Dict
 from transformers import PreTrainedTokenizer, InputFeatures,InputExample
 from transformers.data.processors.glue import glue_convert_examples_to_features
@@ -11,6 +14,13 @@ import os
 from transformers import AutoConfig,BertTokenizer
 from typing import NamedTuple
 import numpy as np
+from tqdm.auto import tqdm, trange
+
+from transformers.modeling_utils import PreTrainedModel
+from transformers.data.data_collator import DataCollator, default_data_collator
+from transformers.utils.dummy_pt_objects import AutoModelForSequenceClassification
+
+
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(filename)s - %(levelname)s - %(message)s')
@@ -231,14 +241,16 @@ class ClassificationTask():
     def __init__(self):
         pretrain_path = '/Users/liguodong/work/pretrain_model/robert_tiny'
         self.data_dir = '/Users/liguodong/work/data/tnews'
-
         path = pretrain_path
         task_mode = TaskMode.training
         self.tokenizer = self._init_tokenizer(task_mode, path)
         self.config = self._init_model_config(task_mode, path)
-  
+        self.model = self._init_model(path, self.config)
 
 
+    def _init_model(self, path:str, config:str):
+        model = AutoModelForSequenceClassification.from_pretrained(path, config=config)   
+        return model
 
     def _init_tokenizer(self, task_mode: TaskMode, path: str):
         # init tokenizer
@@ -282,11 +294,89 @@ class ClassificationTask():
             max_seq_length=128,
             task_name = "classification"
         )
-
+        trainer  = Trainer(model=self.model,train_dataset= train_dataset)
+        trainer.train()
         print("---------")
 
 
+# classification = ClassificationTask()
+# classification.train()
+
+
+class Trainer:
+    model: PreTrainedModel
+    data_collator: DataCollator
+    train_dataset: Optional[Dataset]
+    eval_dataset: Optional[Dataset]
+    prediction_loss_only: bool
+    global_step: Optional[int] = None
+    epoch: Optional[float] = None
+
+    def __init__(
+        self,
+        model: PreTrainedModel,
+        train_dataset: Optional[Dataset] = None,
+        eval_dataset: Optional[Dataset] = None,
+    ):
+        self.model = model
+        self.data_collator = default_data_collator
+        self.train_dataset = train_dataset
+        self.eval_dataset = eval_dataset
+
+    
+    def get_train_dataloader(self) -> DataLoader:
+        """
+        Returns the training :class:`~torch.utils.data.DataLoader`.
+        """
+        if self.train_dataset is None:
+            raise ValueError("Trainer: training requires a train_dataset.")
+        train_sampler = sampler.RandomSampler(self.train_dataset)
+            
+        data_loader = DataLoader(
+            self.train_dataset,
+            batch_size=8,
+            sampler=train_sampler,
+            collate_fn=self.data_collator,
+            drop_last=False,
+        )
+        return data_loader
+
+    def train(self):
+        """
+        Main training entry point.
+
+        Args:
+            model_path (:obj:`str`, `optional`):
+                Local path to the model if the model to train has been instantiated from a local path. 
+                If present, training will resume from the optimizer/scheduler states loaded here.
+        """
+        train_dataloader = self.get_train_dataloader()
+
+        logger.info("example num = %d", self.num_examples(train_dataloader))
+        epochs_trained = 0
+        num_train_epochs = 4
+
+        train_iterator = trange(
+            epochs_trained, int(num_train_epochs), desc="Epoch", disable=not self.is_local_master()
+        )
+
+        for epoch in train_iterator:
+            epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=not self.is_local_master())
+            for step, inputs in enumerate(epoch_iterator):
+                print("---------------------")
+
+    def num_examples(self, dataloader: DataLoader) -> int:
+        """
+        Helper to get number of samples 
+        in a :class:`~torch.utils.data.DataLoader` by accessing its Dataset.
+        """
+        return len(dataloader.dataset)
+
+    def is_local_master(self)->bool:
+        return True
+
 classification = ClassificationTask()
 classification.train()
+
 
 
