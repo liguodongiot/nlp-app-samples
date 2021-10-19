@@ -42,6 +42,9 @@ class ClassificationDataset(Dataset):
         max_seq_length: int = 128,
         task_name='calssification',
     ):
+        """
+        limit_length 限制语料集的长度
+        """
         self.processor = ClassificationProcessor()
         if isinstance(mode, str):
             try:
@@ -52,11 +55,12 @@ class ClassificationDataset(Dataset):
 
         # Make sure only the first process in distributed training processes the dataset,
         # and the others will use the cache.
-        logger.info(
-            f"Creating features from dataset file at {data_dir}")
+        logger.info(f"从数据集文件创建特征： {data_dir}")
+
 
         examples = self.processor.get_examples(data_dir, mode)
 
+        # 截取语料集
         if limit_length is not None:
             examples = examples[:limit_length]
 
@@ -66,6 +70,8 @@ class ClassificationDataset(Dataset):
             max_length=max_seq_length,
             label_list=self.label_list,
             output_mode=task_name)
+        logger.info(f"（训练||校验||测试）特征集长度：{len(self.features)}")
+
 
     def __len__(self):
         return len(self.features)
@@ -92,8 +98,13 @@ class DataProcessor:
 
     @classmethod
     def _read_tsv(cls, input_file, quotechar=None):
-        """Reads a tab separated value file."""
+        """
+            Reads a tab separated value file.
+            读取TSV文件
+        """
         with open(input_file, "r", encoding="utf-8-sig") as f:
+            # 说明：delimiter是分隔符，quotechar是引用符，当一段话中出现分隔符的时候，
+            # 用引用符将这句话括起来，就能排除歧义。
             return list(csv.reader(f, delimiter="\t", quotechar=quotechar))
 
     def get_features(self,
@@ -105,13 +116,15 @@ class DataProcessor:
             output_mode=None,
             ):
         """
-        因为多标签分类需要使用，所以从dataset中通用逻辑抽取出来
-        :param examples:
-        :param tokenizer:
-        :param max_length:
-        :param label_list:
-        :param output_mode:
-        :return:
+            返回包含许多feature的一个列表
+            输入example的列表
+            返回feature类的列表
+            :param examples:
+            :param tokenizer:
+            :param max_length:
+            :param label_list:
+            :param output_mode:
+            :return:
         """
         return glue_convert_examples_to_features(
             examples,
@@ -141,12 +154,17 @@ class ClassificationProcessor(DataProcessor):
 
     def get_examples(self, data_dir: str, mode: Split):
         file_name = "{}.tsv".format(mode.value)
+        logger.info(f"获取文本数据：{os.path.join(data_dir, file_name)}")
         examples = self._create_examples(
             self._read_tsv(os.path.join(data_dir, file_name)), mode)
+        
         return examples
 
     def get_labels(self, data_dir):
-        """获取数据集中所有 label list."""
+        """
+            获取数据集中所有 label list.
+            提取训练集、校验集和测试集的label,并排重
+        """
         lines = []
         files = ['{}.tsv'.format(v.value) for k,v in Split.__members__.items()]
         for f in files:
@@ -189,6 +207,9 @@ class ClassificationProcessor(DataProcessor):
                 label = line[text_index + 1]
             else:
                 label = None
+            # InputExample
+            # text_a和text_b是文本对，可用于问答文本匹配，text_b可选
+            # guid是唯一标识符
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
         return examples
 
@@ -215,6 +236,7 @@ class ClassificationTask():
         task_mode = TaskMode.training
         self.tokenizer = self._init_tokenizer(task_mode, path)
         self.config = self._init_model_config(task_mode, path)
+  
 
 
 
@@ -232,6 +254,7 @@ class ClassificationTask():
             label2id = processor.get_label2id(self.data_dir)
             id2label = processor.get_id2label(self.data_dir)
             num_labels = len(label2id)
+            logger.info(f"数据集所有标签数：{num_labels}")
             config = AutoConfig.from_pretrained(
                 path,
                 num_labels=num_labels,
@@ -251,6 +274,7 @@ class ClassificationTask():
     def train(self):
         id2label = self.config.id2label
         label_list = [label for _, label in id2label.items() ]
+
         train_dataset = ClassificationDataset(data_dir=self.data_dir,
             tokenizer=self.tokenizer,
             label_list=label_list,
