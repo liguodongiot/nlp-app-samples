@@ -34,7 +34,8 @@ def read_data_multidir(dirs: str):
         else:
             # 过滤掉以下划线开头的文件
             # 仅保留以.txt文件结尾的文件
-            if (not temp.startswith('_')) and temp.endswith(('.dev', '.test', '.train', '.txt')):
+            filename = os.path.basename(temp)
+            if (not filename.startswith('_')) and filename.endswith(('.dev', '.test', '.train', '.txt')):
                 file_list.append(temp)
             
     pprint.pprint(f"待处理的所有语料文件：{set(file_list)}")
@@ -57,7 +58,8 @@ def get_file_path(root_path, file_list, level:int):
             get_file_path(dir_file_path,file_list, level+1)
         else:
             # 过滤掉以下划线开头的文件
-            if (not dir_file.startswith('_')) and dir_file_path.endswith(('.dev', '.test', '.train', '.txt')):
+            filename = os.path.basename(dir_file_path)
+            if (not filename.startswith('_')) and filename.endswith(('.dev', '.test', '.train', '.txt')):
                 file_list.append(dir_file_path)
 
 # 根目录路径
