@@ -1,5 +1,5 @@
 
-from torch.utils.data.dataset import Dataset
+from torch.utils.data.dataset import Dataset, IterableDataset
 from torch.utils.data import DataLoader
 from torch.utils.data import sampler
 
@@ -93,6 +93,59 @@ class ClassificationDataset(Dataset):
         return self.label_list
 
 
+
+class ClassificationIterableDataset(IterableDataset):
+    features: List[InputFeatures]
+    label_list: List[str]
+
+    def __init__(
+        self,
+        data_dir,
+        tokenizer: PreTrainedTokenizer,
+        label_list: List[str],
+        limit_length: Optional[int] = None,
+        mode: Union[str, Split]=Split.train,
+        max_seq_length: int = 128,
+        task_name='calssification',
+    ):
+        """
+        limit_length 限制语料集的长度
+        """
+        self.processor = ClassificationProcessor()
+        if isinstance(mode, str):
+            try:
+                mode = Split[mode]
+            except KeyError:
+                raise KeyError("mode is not a valid split name")
+        self.label_list = label_list
+
+        # Make sure only the first process in distributed training processes the dataset,
+        # and the others will use the cache.
+        logger.info(f"从数据集文件创建特征： {data_dir}")
+
+        examples = self.processor.get_examples(data_dir, mode)
+
+        # 截取语料集
+        if limit_length is not None:
+            examples = examples[:limit_length]
+
+        self.features = self.processor.get_features(
+            examples,
+            tokenizer,
+            max_length=max_seq_length,
+            label_list=self.label_list,
+            output_mode=task_name)
+        logger.info(f"（训练||校验||测试）特征集长度：{len(self.features)}")
+
+    def __iter__(self):
+        for feature in self.features:
+            yield feature
+
+    def __len__(self):
+        return len(self.features)
+
+    def get_labels(self):
+        return self.label_list
 
 
 class DataProcessor:
@@ -235,7 +288,7 @@ class PredictionOutput(NamedTuple):
     qps: Optional[float]
     id2label: Optional[Dict[str, str]]
 
-
+# 分类训练任务
 class ClassificationTask():
 
     def __init__(self):
@@ -287,13 +340,21 @@ class ClassificationTask():
         id2label = self.config.id2label
         label_list = [label for _, label in id2label.items() ]
 
-        train_dataset = ClassificationDataset(data_dir=self.data_dir,
+        # train_dataset = ClassificationDataset(data_dir=self.data_dir,
+        #     tokenizer=self.tokenizer,
+        #     label_list=label_list,
+        #     mode=Split.train,
+        #     max_seq_length=128,
+        #     task_name = "classification"
+        # )
+
+        train_dataset = ClassificationIterableDataset(data_dir=self.data_dir,
             tokenizer=self.tokenizer,
             label_list=label_list,
             mode=Split.train,
             max_seq_length=128,
-            task_name = "classification"
-        )
+            task_name = "classification")
+
         trainer  = Trainer(model=self.model,train_dataset= train_dataset)
         trainer.train()
         print("---------")
@@ -302,7 +363,7 @@ class ClassificationTask():
 # classification = ClassificationTask()
 # classification.train()
 
-
+# 具体的训练类
 class Trainer:
     model: PreTrainedModel
     data_collator: DataCollator
@@ -330,13 +391,20 @@ class Trainer:
         """
         if self.train_dataset is None:
             raise ValueError("Trainer: training requires a train_dataset.")
-        train_sampler = sampler.RandomSampler(self.train_dataset)
+        # train_sampler = sampler.RandomSampler(self.train_dataset)
             
-        data_loader = DataLoader(
-            self.train_dataset,
-            batch_size=6,
-            sampler=train_sampler,
+        # data_loader = DataLoader(
+        #     self.train_dataset,
+        #     batch_size=6,
+        #     sampler=train_sampler,
+        #     collate_fn=self.data_collator,
+        #     drop_last=False,
+        # )
+
+        data_loader = DataLoader(self.train_dataset, 
+            num_workers=0, 
             collate_fn=self.data_collator,
+            batch_size=10,
             drop_last=False,
         )
         return data_loader
