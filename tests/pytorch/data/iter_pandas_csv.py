@@ -6,6 +6,9 @@ import torch
 # https://blog.csdn.net/weixin_35757704/article/details/119241547
 # pytorch构造可迭代的Dataset
 
+# https://blog.csdn.net/weixin_35757704/article/details/119245731
+# pytorch构造可迭代的DataLoader，动态流式读取数据源，不担心内存炸裂
+
 class PandasIterableDataset(IterableDataset):
     def __init__(self, file_path):
         # 对无表头的数据，则需设置 header=None，否则第一行数据被作为表头

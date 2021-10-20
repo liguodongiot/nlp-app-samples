@@ -200,7 +200,8 @@ for i in range(10):
             str(i), 100 * class_correct[i] / class_total[i],
             np.sum(class_correct[i]), np.sum(class_total[i])))
     else:
-        print('Test Accuracy of %5s: N/A (no training examples)' % (classes[i]))
+        print('Test Accuracy of %5s: N/A (no training examples)' % (str(i)))
+
 print('\nTest Accuracy (Overall): %2d%% (%2d/%2d)' % (
     100. * np.sum(class_correct) / np.sum(class_total),
     np.sum(class_correct), np.sum(class_total)))

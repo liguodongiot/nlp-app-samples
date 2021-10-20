@@ -93,6 +93,10 @@ sudo poetry add pandas
 
 > pip list --format=freeze | grep -vE '(distribute|pip|setuptools|wheel)' > requirements.txt
 
+## 接口在线Mock
+
+- https://www.fastmock.site/#/projects
+
 
 ## 参考文档
 
