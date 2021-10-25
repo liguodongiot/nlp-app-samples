@@ -29,4 +29,3 @@ while loop:
         loop = False
         print("Iteration is stopped.")
 
-
