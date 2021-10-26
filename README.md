@@ -83,6 +83,8 @@ sudo poetry add torchvision==0.10.0
 sudo poetry add transformers==4.11.0
 sudo -H pip install scikit-learn==1.0
 sudo poetry add pandas
+sudo pip install onnxruntime==1.9.0
+sudo pip install textbrewer==0.2.1
 ```
 
 ### 查看依赖

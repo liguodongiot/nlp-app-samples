@@ -1061,9 +1061,8 @@ class LrClassification:
 ################
 
 TASK_DICT = {
-   "lr": LrClassification,
+   "lr": LrClassification
 }
-
 
 class PretrainType:
     bert = "bert"
