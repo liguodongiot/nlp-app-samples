@@ -3,7 +3,7 @@ import numpy as np
 from typing import Dict, List 
 import torch
 
-from tests.iter_version_dev.V1_0_0.dataset_custom import ClassificationPredictSet
+from tests.iter_version_dev.V1_0_0.dataset_classification import ClassificationPredictSet
 
 
 class PredictProcessing:

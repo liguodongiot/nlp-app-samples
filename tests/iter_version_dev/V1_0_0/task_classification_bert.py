@@ -2,7 +2,7 @@ import logging
 
 from tests.iter_version_dev.V1_0_0.task_bask import NLPTask
 from tests.iter_version_dev.V1_0_0.train_inference_io import PredictionOutput
-from tests.iter_version_dev.V1_0_0.dataset_custom import ClassificationIterableDataset,ClassificationDataset
+from tests.iter_version_dev.V1_0_0.dataset_classification import ClassificationIterableDataset,ClassificationDataset
 from tests.iter_version_dev.V1_0_0.common import Split
 from tests.iter_version_dev.V1_0_0.common_dict import METRICS_DICT
 from tests.iter_version_dev.V1_0_0.metric import compute_metrics_fn
