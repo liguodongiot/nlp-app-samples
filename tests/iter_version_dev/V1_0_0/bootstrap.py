@@ -37,16 +37,21 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # task_name = args.task_name
-    task_name = "text_classification_bert"
+    # task_name = "text_classification_bert"
+    task_name = "text_similarity_bert"
 
     # pretrain_name = args.pretrain_name
     pretrain_name = "bert"
 
     # data_dir = args.data_dir
-    data_dir = "/Users/liguodong/work/data/tnews/temp"
+    # data_dir = "/Users/liguodong/work/data/tnews/temp"
+
+    data_dir = "/Users/liguodong/work/data/similarity"
+
 
     # model_path = args.model_path
-    model_path = "/Users/liguodong/work/train_model/roberta"
+    # model_path = "/Users/liguodong/work/train_model/roberta"
+    model_path = "/Users/liguodong/work/train_model/similarity"
 
     # pretrain_path = args.pretrain_path
     pretrain_path = "/Users/liguodong/work/pretrain_model/robert_tiny"

@@ -24,7 +24,7 @@ TOKENIZER_FUNC = {
 MODEL_FUNC = {
     TaskName.text_classification_bert: AutoModelForSequenceClassification,
     TaskName.ner: AutoModelForTokenClassification,
-    TaskName.similarity: AutoModelForSequenceClassification,
+    TaskName.text_similarity_bert: AutoModelForSequenceClassification,
 }
 
 PREDICT_PROCESSOR = {

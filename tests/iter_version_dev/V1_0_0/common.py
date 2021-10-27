@@ -10,7 +10,7 @@ class TaskName:
     text_classification_bert = "text_classification_bert"
     text_classification_lr = "text_classification_lr"
     ner = "ner"
-    similarity = "similarity"
+    text_similarity_bert = "text_similarity_bert"
 
 class Split(Enum):
     train = "train"

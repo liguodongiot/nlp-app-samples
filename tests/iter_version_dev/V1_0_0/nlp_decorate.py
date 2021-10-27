@@ -8,7 +8,8 @@ from tests.iter_version_dev.V1_0_0.task_classification_bert import Classificatio
 # 2.训练预测装饰类
 
 TASK_DICT = {
-    TaskName.text_classification_bert: ClassificationTask
+    TaskName.text_classification_bert: ClassificationTask,
+    TaskName.text_similarity_bert: ClassificationTask
 }
 
 
