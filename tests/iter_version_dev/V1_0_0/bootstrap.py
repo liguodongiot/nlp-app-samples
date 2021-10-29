@@ -8,6 +8,7 @@ import argparse
 
 from tests.iter_version_dev.V1_0_0.nlp_decorate import NLPTrainer, NLPPredictor
 from tests.iter_version_dev.V1_0_0.task_bask import default_train_args
+from tests.iter_version_dev.V1_0_0.common import TaskName
 
 # 1. 启动类
 if __name__ == '__main__':
@@ -39,7 +40,8 @@ if __name__ == '__main__':
     # task_name = args.task_name
     # task_name = "text_classification_bert"
     # task_name = "text_similarity_bert"
-    task_name = "ner"
+    # task_name = "ner"
+    task_name = TaskName.text_classification_multi_bert
 
     # pretrain_name = args.pretrain_name
     pretrain_name = "bert"
@@ -48,12 +50,13 @@ if __name__ == '__main__':
     
     # data_dir = "/Users/liguodong/work/data/tnews/temp"
     # data_dir = "/Users/liguodong/work/data/similarity"
-    data_dir = "/Users/liguodong/work/data/daily-ner"
+    # data_dir = "/Users/liguodong/work/data/daily-ner"
+    data_dir = "/Users/liguodong/work/data/toutiao-multi"
 
     # model_path = args.model_path
     # model_path = "/Users/liguodong/work/train_model/roberta"
     # model_path = "/Users/liguodong/work/train_model/similarity"
-    model_path = "/Users/liguodong/work/train_model/ner"
+    model_path = "/Users/liguodong/work/train_model/multi-classification"
 
 
     # pretrain_path = args.pretrain_path
@@ -90,8 +93,6 @@ if __name__ == '__main__':
     
     res = predictor.predict_testdataset(data_dir, is_log_preds=is_log_preds)
     print(res)
-
-
 
 
 

@@ -11,6 +11,8 @@ class TaskName:
     text_classification_lr = "text_classification_lr"
     ner = "ner"
     text_similarity_bert = "text_similarity_bert"
+    text_classification_multi_bert = "text_classification_multi_bert"
+
 
 class Split(Enum):
     train = "train"

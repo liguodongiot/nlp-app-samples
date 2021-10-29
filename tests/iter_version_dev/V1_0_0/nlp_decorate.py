@@ -10,7 +10,8 @@ from tests.iter_version_dev.V1_0_0.task_ner import TokenClassification
 TASK_DICT = {
     TaskName.text_classification_bert: ClassificationTask,
     TaskName.text_similarity_bert: ClassificationTask,
-    TaskName.ner: TokenClassification
+    TaskName.ner: TokenClassification,
+    TaskName.text_classification_multi_bert: ClassificationTask,
 }
 
 class NLPTrainer:

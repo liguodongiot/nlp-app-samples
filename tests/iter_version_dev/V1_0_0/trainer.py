@@ -39,7 +39,6 @@ from torch.utils.tensorboard import SummaryWriter
 logger = logging.getLogger(__name__)
 
 
-
 class SequentialDistributedSampler(Sampler):
     """
     Distributed Sampler that subsamples indicies sequentially,
@@ -203,6 +202,7 @@ class Trainer:
             raise ValueError("Trainer: evaluation requires an eval_dataset.")
 
         eval_dataset = eval_dataset if eval_dataset is not None else self.eval_dataset
+        logger.info(f"local_rank: {self.args.local_rank}")
 
         if self.args.local_rank != -1:
             sampler = SequentialDistributedSampler(eval_dataset)
@@ -233,6 +233,8 @@ class Trainer:
             test_dataset (obj:`Dataset`): The test dataset to use.
         """
         # We use the same batch_size as for eval.
+
+        logger.info(f"local_rank: {self.args.local_rank}")
         if self.args.local_rank != -1:
             sampler = SequentialDistributedSampler(test_dataset)
         else:
@@ -446,7 +448,6 @@ class Trainer:
 
                     optimizer.step()
                         
-
                     scheduler.step()
                     model.zero_grad()
 

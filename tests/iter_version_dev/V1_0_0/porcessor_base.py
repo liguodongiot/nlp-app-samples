@@ -27,6 +27,7 @@ class DataProcessor:
             return list(csv.reader(f, delimiter="\t", quotechar=quotechar))
 
     def get_features(self,
+                     # examples: Union[List[InputExample], "tf.data.Dataset"],
                      examples,
                      tokenizer: PreTrainedTokenizer,
                      max_length: Optional[int] = None,
