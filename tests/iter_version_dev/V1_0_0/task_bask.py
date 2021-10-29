@@ -143,10 +143,7 @@ class NLPTask:
             self.config_path = os.path.join(base_dir, 'msnlp', 'distil', 'config', self.distil_type)
             self.config = self._init_model_config(task_mode, self.config_path)
             if init_strategy[self.distil_type] == 'random':
-                self.model = self._init_model(
-                    task_mode=task_mode,
-                    path='',
-                    config=self.config)
+                self.model = self._init_model(task_mode=task_mode, path='', config=self.config)
             else:
                 self.model = self._init_model(
                     task_mode=task_mode,
@@ -200,8 +197,7 @@ class NLPTask:
             model = m_func.from_config(config=config)
 
         if task_mode == TaskMode.inference:
-            device = torch.device(
-                "cuda" if torch.cuda.is_available() and self.use_cuda else "cpu")
+            device = torch.device("cuda" if torch.cuda.is_available() and self.use_cuda else "cpu")
             model.to(device)
             # if self.fp16:
             #     from apex import amp

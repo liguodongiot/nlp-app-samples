@@ -4,14 +4,14 @@ from tests.iter_version_dev.V1_0_0.common import PretrainType, TaskName, SUPPORT
 from tests.iter_version_dev.V1_0_0.common_dict import TASK_DICT
 from tests.iter_version_dev.V1_0_0.train_inference_io import PredictionOutput
 from tests.iter_version_dev.V1_0_0.task_classification_bert import ClassificationTask
-
+from tests.iter_version_dev.V1_0_0.task_ner import TokenClassification
 # 2.训练预测装饰类
 
 TASK_DICT = {
     TaskName.text_classification_bert: ClassificationTask,
-    TaskName.text_similarity_bert: ClassificationTask
+    TaskName.text_similarity_bert: ClassificationTask,
+    TaskName.ner: TokenClassification
 }
-
 
 class NLPTrainer:
     """

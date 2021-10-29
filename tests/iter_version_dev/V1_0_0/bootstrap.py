@@ -38,20 +38,23 @@ if __name__ == '__main__':
 
     # task_name = args.task_name
     # task_name = "text_classification_bert"
-    task_name = "text_similarity_bert"
+    # task_name = "text_similarity_bert"
+    task_name = "ner"
 
     # pretrain_name = args.pretrain_name
     pretrain_name = "bert"
 
     # data_dir = args.data_dir
+    
     # data_dir = "/Users/liguodong/work/data/tnews/temp"
-
-    data_dir = "/Users/liguodong/work/data/similarity"
-
+    # data_dir = "/Users/liguodong/work/data/similarity"
+    data_dir = "/Users/liguodong/work/data/daily-ner"
 
     # model_path = args.model_path
     # model_path = "/Users/liguodong/work/train_model/roberta"
-    model_path = "/Users/liguodong/work/train_model/similarity"
+    # model_path = "/Users/liguodong/work/train_model/similarity"
+    model_path = "/Users/liguodong/work/train_model/ner"
+
 
     # pretrain_path = args.pretrain_path
     pretrain_path = "/Users/liguodong/work/pretrain_model/robert_tiny"
