@@ -9,7 +9,7 @@ import time
 import pandas as pd
 from transformers import EvalPrediction
 from transformers import AutoConfig, AutoTokenizer, BertTokenizer
-from transformers import InputFeatures as InputFeatures_CLS
+# from transformers import InputFeatures as InputFeatures_CLS
 from typing import Callable, Dict, Optional, List
 from torch.utils.data.dataset import Dataset
 from transformers import set_seed
@@ -36,9 +36,10 @@ from tests.iter_version_dev.V1_0_0.train_inference_io import (
     TrainingArguments,
     default_train_args,
     default_distil_train_args,
-    default_distil_config_args,
-    InputFeatures
+    default_distil_config_args
 )
+from tests.iter_version_dev.V1_0_0.train_inference_io import InputFeatures as InputFeatures_NER
+from tests.iter_version_dev.V1_0_0.train_inference_io import InputFeatures_CLS
 
 from tests.iter_version_dev.V1_0_0.processor_dict import DATA_PROCESSOR
 
@@ -407,7 +408,7 @@ class NLPTask:
             text_list.append(''.join(tokens))
             if isinstance(f, InputFeatures_CLS):
                 label_idlist.append(f.label)
-            elif isinstance(f, InputFeatures):
+            elif isinstance(f, InputFeatures_NER):
                 label_idlist.append(f.label_ids)
         post_res = processor.post_processing(
             predictions_logits,

@@ -371,3 +371,20 @@ class InputFeatures:
     attention_mask: List[int]
     token_type_ids: Optional[List[int]] = None
     label_ids: Optional[List[int]] = None
+
+
+
+@dataclass
+class InputFeatures_CLS:
+    """
+    特征数据
+    A single set of features of data.
+    Property names are the same names as the corresponding inputs to a model.
+    """
+    input_ids: List[int]
+    attention_mask: List[int]
+    token_type_ids: Optional[List[int]] = None
+    label: Optional[List[int]] = None
+
+    def to_json_string(self):
+        return json.dumps(dataclasses.asdict(self))+"\n"

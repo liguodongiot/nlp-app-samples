@@ -1,28 +1,16 @@
-
-
 import dataclasses
 import json
-from tests.iter_version_dev.V1_0_0.processor_bert_classification import ClassificationProcessor
-import os 
-from tests.iter_version_dev.V1_0_0.common import Split
 from typing import List, Union, Optional, Dict
 from transformers import InputExample, PreTrainedTokenizer
 from dataclasses import dataclass
+import os 
 
-@dataclass
-class InputFeatures:
-    """
-    特征数据
-    A single set of features of data.
-    Property names are the same names as the corresponding inputs to a model.
-    """
-    input_ids: List[int]
-    attention_mask: List[int]
-    token_type_ids: Optional[List[int]] = None
-    label: Optional[List[int]] = None
+from tests.iter_version_dev.V1_0_0.processor_bert_classification import ClassificationProcessor
+from tests.iter_version_dev.V1_0_0.common import Split
 
-    def to_json_string(self):
-        return json.dumps(dataclasses.asdict(self))+"\n"
+from tests.iter_version_dev.V1_0_0.train_inference_io import InputFeatures_CLS as InputFeatures
+
+
 
 
 class MultiLabelProcessor(ClassificationProcessor):
