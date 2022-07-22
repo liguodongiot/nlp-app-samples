@@ -130,3 +130,9 @@ dmypy.json
 
 # 模型
 *.pt
+
+.idea/
+outputs/
+multirun/
+
+

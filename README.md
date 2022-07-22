@@ -18,7 +18,7 @@
 ## 创建项目及初始化
 
 ### 新建项目
->poetry new nlp-app-samples
+> poetry new nlp-app-samples
 
 ### 查看目录结构
 
