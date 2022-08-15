@@ -1,0 +1,7 @@
+
+
+optimizer:
+  _target_: nlp_app_samples.optimizer.Optimizer
+  algo: SGD
+  lr: 0.01
+
