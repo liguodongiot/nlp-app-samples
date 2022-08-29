@@ -10,6 +10,8 @@ import pandas as pd
 import shutil
 import argparse
 
+from pathlib import Path
+
 import math
 from collections import defaultdict, Iterable
 from sklearn import metrics
@@ -32,6 +34,9 @@ import logging
 import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Tuple
+from skl2onnx import convert_sklearn
+from skl2onnx.common.data_types import FloatTensorType
+
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
@@ -830,6 +835,13 @@ class LrClassification:
                     for i, e in enumerate(v):
                         local_path = os.path.join(self.model_path, str(k)+'_'+str(i+1)+'.pkl')
                         pickle_dump(e, local_path)
+                        # Convert into ONNX format
+                        vectorizer:TfidfVectorizer = model_data["vectorizer"]
+                        initial_type = [('X', FloatTensorType([None, vectorizer.max_features]))]
+                        onx = convert_sklearn(e, initial_types=initial_type)
+                        path = Path(self.model_path+"/"+"rf_iris.onnx")
+                        with open(path, "wb") as f:
+                            f.write(onx.SerializeToString())
                 else:
                     local_path = os.path.join(self.model_path, str(k)+'.pkl')
                     pickle_dump(v, local_path)
@@ -1230,7 +1242,7 @@ if __name__ == '__main__':
     # data_dir = args.data_dir
     data_dir = "/Users/liguodong/work/data/tnews/temp"
     # model_path = args.model_path
-    model_path= "/Users/liguodong/work/train_model"
+    model_path= "/Users/liguodong/work/train_model/sklearn"
 
     pretrain_path = args.pretrain_path
     is_log_preds = args.is_log_preds

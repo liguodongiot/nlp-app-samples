@@ -29,6 +29,11 @@ from transformers.trainer_utils import (
     TrainOutput,
     set_seed,
 )
+from pathlib import Path
+import transformers
+from transformers.onnx import FeaturesManager
+from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification
+
 
 from tests.iter_version_dev.V1_0_0.train_inference_io import TrainingArguments
 from utils import training_callback
@@ -591,7 +596,7 @@ class Trainer:
         return self.args.local_rank == -1 or torch.distributed.get_rank() == 0
 
 
-    def save_model(self, output_dir: Optional[str] = None):
+    def save_model(self, output_dir: Optional[str] = None, tokenizer = None):
         """
         Will save the model, so you can reload it using :obj:`from_pretrained()`.
 
@@ -602,6 +607,7 @@ class Trainer:
             self._save_tpu(output_dir)
         elif self.is_world_master():
             self._save(output_dir)
+
 
 
     def _save_tpu(self, output_dir: Optional[str] = None):

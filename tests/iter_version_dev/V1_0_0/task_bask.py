@@ -18,6 +18,11 @@ from torch.utils.data import DataLoader
 from transformers import AdamW, get_linear_schedule_with_warmup
 import onnxruntime
 
+from pathlib import Path
+import transformers
+from transformers.onnx import FeaturesManager
+from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification
+
 
 from tests.iter_version_dev.V1_0_0.common import (
     PretrainType, TaskMode, InferMode, 
@@ -310,6 +315,24 @@ class NLPTask:
             trainer.train(self.model_path, en_callback=en_callback)
             trainer.save_model()
             self.tokenizer.save_pretrained(self.model_path)
+
+
+            # 转换成ONNX
+            # load config
+            model_kind, model_onnx_config = FeaturesManager.check_supported_model_or_raise(self.model,
+                                                                                           feature="default")
+            onnx_config = model_onnx_config(self.model.config)
+
+            # export
+            onnx_inputs, onnx_outputs = transformers.onnx.export(
+                preprocessor=self.tokenizer,
+                model=self.model,
+                config=onnx_config,
+                opset=13,
+                output=Path(self.model_path + "/" + "trfs-model.onnx")
+            )
+
+
 
         # Evaluation
         logger.info("*** Evaluate ***")
