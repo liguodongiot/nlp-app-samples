@@ -19,6 +19,7 @@ datasets = "^2.4.0"
 jieba = "^0.42.1"
 skl2onnx = "^1.12"
 lightgbm = "^3.3.2"
+neptune-client = "^0.16.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
