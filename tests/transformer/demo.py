@@ -1,28 +1,64 @@
-
-
-
-
-
 from datasets import load_dataset, load_metric
 
+# 每个数据集都由一个文本特征（评论的文本）和一个标签特征（表示评论的好坏）组成。
 task = "imdb"
 
-# dataset = load_dataset(task)
-
-# ~/.cache/huggingface/datasets
-dataset = load_dataset(path=task)
+dataset = load_dataset(task)
 
 print(dataset)
+"""
+DatasetDict({
+    train: Dataset({
+        features: ['text', 'label'],
+        num_rows: 25000
+    })
+    test: Dataset({
+        features: ['text', 'label'],
+        num_rows: 25000
+    })
+    unsupervised: Dataset({
+        features: ['text', 'label'],
+        num_rows: 50000
+    })
+})
+"""
 
-# ~/.cache/huggingface/metrics/
+
+########################
+
+# IMDb数据集的通用基准指标是准确率，所以这里使用 datasets 库的 load_metric 函数来加载 metric 脚本，稍后可以与 compute 方法一起使用。
 metric = load_metric("accuracy")
 
-result = metric.compute(predictions=[0,0,1,1], references=[0,1,1,1])
+metric.compute(predictions=[0,0,1,1], references=[0,1,1,1])
+# {'accuracy': 0.75}
 
-print(result)
 
+########################
+# 下载的数据集有训练和测试拆分，但我们还需要拆分出验证集来判断模型在训练期间表现以避免过拟合。
+#
+# 使用train_test_split 应用于 test_size = 0.3 进行拆分：这会产生一个包含 70% 原始样本的新训练集和一个包含 30% 原始样本的验证集。
 splitted_datasets = dataset["train"].train_test_split(test_size=0.3)
 print(splitted_datasets)
+"""
+DatasetDict({
+    train: Dataset({
+        features: ['text', 'label'],
+        num_rows: 17500
+    })
+    test: Dataset({
+        features: ['text', 'label'],
+        num_rows: 7500
+    })
+})
+"""
+
+# 接下来使用 Hugging Face的AutoTokenizer 类加载 BERT Tokenizer。
+#
+# 本文实际上加载 DistilBERT 作为 快速替代方案，如果需要加载 BERT，代码基本是相同的（即将 distilbert-base-uncased 替换为 Bert-base-uncased）。
+# DistilBERT 是一种小型、快速、廉价和轻量级的 Transformer 模型，通过蒸馏 BERT 基础进行训练。
+# 根据 GLUE 语言理解基准测试，它的参数比 Bert-base-uncased 少 40%，运行速度提高 60%，同时保持 BERT 95% 以上的性能。
+
+
 
 from transformers import AutoTokenizer
 
@@ -34,13 +70,21 @@ model_checkpoint = "distilbert-base-uncased"
 # The “Fast” implementations allows a significant speed-up in particular
 # when doing batched tokenization, and additional methods to map between the
 # original string (character and words) and the token space.
-tokenizer = AutoTokenizer.from_pretrained(model_checkpoint, use_fast=True)
 
-tokenizer(["Hello, this one sentence!"])
+# 默认：/Users/liguodong/.cache/huggingface/transformers
+
+tokenizer = AutoTokenizer.from_pretrained(model_checkpoint, cache_dir= "./temp",use_fast=True)
+
+print(tokenizer(["Hello, this one sentence!"]))
 # {'input_ids': [[101, 7592, 1010, 2023, 2028, 6251, 999, 102]], 'attention_mask':
 # [[1, 1, 1, 1, 1, 1, 1, 1]]}
 # input_ids: the tokenizer vocabulary indexes of the tokenized input sentence
 # attention_mask: 0 if the corresponding input_id is padding, 1 otherwise
+
+#  input_ids：分词输入句子的分词器词汇索引。
+#  attention_mask：一个由 1 和 0 组成的数组，其中 0 表示发生填充的位置。
+
+# input_ids 和 attention_mask 都将被输入 DistilBERT 模型中。
 
 
 
@@ -49,7 +93,28 @@ def preprocess_function_batch(examples):
     # the model.
     return tokenizer(examples["text"], truncation=True)
 
+# batched=True: use this if you have a mapped function which can efficiently
+# handle batches of inputs like the tokenizer
 splitted_datasets_encoded = splitted_datasets.map(preprocess_function_batch, batched=True)
+"""
+DatasetDict({
+    train: Dataset({
+        features: ['text', 'label', 'input_ids', 'attention_mask'],
+        num_rows: 17500
+    })
+    test: Dataset({
+        features: ['text', 'label', 'input_ids', 'attention_mask'],
+        num_rows: 7500
+    })
+})
+"""
+
+# 现在可以使用 AutoModelForSequenceClassification 类及其 from_pretrained 方法加载预训练的 BERT。
+# 这里要使用num_label = 2 参数，因为现在需要在是二分类任务上微调 BERT，
+# 我们将重新生成的head部分，用一个随机初始化的带有两个标签的分类头替换原始层（其权重将在训练期间学习）
+
+
+
 
 
 from transformers import TrainingArguments, Trainer
@@ -64,7 +129,7 @@ from transformers import AutoModelForSequenceClassification
 # it is passed to the underlying class DistilBertForSequenceClassification, which
 # accepts it.
 
-model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=2)
+model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=2, cache_dir= "./temp")
 
 # This will issue a warning about some of the pretrained weights not being used
 # and some weights being randomly initialized. That’s because we are throwing
@@ -73,16 +138,30 @@ model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num
 # transferring the knowledge of the pretrained model to it (which is why doing
 # this is called transfer learning).
 
+# 在编写训练代码之前，需要启动 TensorBoard，这样可以获得模型的实时训练信息。
 
+# 启动 TensorBoard 时，logdir 参数应该代表 Hugging Face 写入模型训练日志的目录。
 
 model_output_dir = f"{model_checkpoint}-finetuned-{task}"
 print(model_output_dir) # distilbert-base-uncased-finetuned-imdb
 
-
-
 # Start TensorBoard before training to monitor it in progress
 # %load_ext tensorboard
 # %tensorboard --logdir '{model_output_dir}'/runs
+
+# 启动时，TensorBoard 面板将显示当前没有可用的仪表板。如果在模型训练期间刷新此页面则会查看到一些实时的数据。
+
+
+# 接下来是配置一些训练参数。代码片段中已经为每个参数添加说明。
+
+# output_dir 存储最终模型的位置。
+# evaluation_strategy和eval_steps每50个训练step在验证集上验证训练模型。
+# logging_strategy 和 logging_steps 每 50 个训练step保存日志（将由 TensorBoard 可视化）。
+# save_strategy 和 save_steps 表示每 200 个训练step保存训练模型。
+# learning_rate 学习率。per_device_train_batch_size 和 per_device_eval_batch_size 分别表示在训练和验证期间使用的批大小。
+# num_train_epochs表示训练的轮次数。
+# load_best_model_at_end 表示在测试集上计算使用性能最好的模型（用 metric_for_best_model 指定）的模型。
+# report_to 将所有训练和验证的数据报告给 TensorBoard。
 
 
 args = TrainingArguments(
@@ -143,6 +222,7 @@ args = TrainingArguments(
     report_to="tensorboard"
 )
 
+# 然后需要将这些训练参数传递给 Trainer 对象， Trainer 对象被实例化就可以使用 train 方法开始训练。
 
 # Function that returns an untrained model to be trained
 def model_init():
@@ -191,6 +271,7 @@ trainer = Trainer(
 # ... train the model!
 trainer.train()
 
+# 在训练过程中，可以刷新 TensorBoard 来查看训练指标的更新。在本文中，只看到训练集上的损失、验证集上的损失和验证集上的准确率。
 
 # Tokenize test set
 dataset_test_encoded = dataset["test"].map(preprocess_function_batch, batched=True)
@@ -203,8 +284,5 @@ test_references = np.array(dataset["test"]["label"])
 # Compute accuracy
 metric.compute(predictions=test_predictions_argmax, references=test_references)
 # {'accuracy': 0.91888}
-
-
-
 
 
