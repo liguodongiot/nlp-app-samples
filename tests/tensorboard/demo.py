@@ -1,8 +1,3 @@
-
-
-
-
-
 from datasets import load_dataset, load_metric
 
 task = "imdb"
@@ -191,6 +186,7 @@ trainer = Trainer(
 # ... train the model!
 trainer.train()
 
+import numpy as np
 
 # Tokenize test set
 dataset_test_encoded = dataset["test"].map(preprocess_function_batch, batched=True)

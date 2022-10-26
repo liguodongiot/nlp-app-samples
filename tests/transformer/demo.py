@@ -273,6 +273,8 @@ trainer.train()
 
 # 在训练过程中，可以刷新 TensorBoard 来查看训练指标的更新。在本文中，只看到训练集上的损失、验证集上的损失和验证集上的准确率。
 
+import numpy as np
+
 # Tokenize test set
 dataset_test_encoded = dataset["test"].map(preprocess_function_batch, batched=True)
 # Use the model to get predictions
